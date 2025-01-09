@@ -8,11 +8,12 @@ export async function createUserAccount(user: INewUser) {
             ID.unique(),
             user.email,
             user.password,
-            user.name,
-
-        )
+            user.name
+        );
+  
         if (!newAccount) throw Error;
-        const avatarUrl = avatars.getInitials(user.name);
+  
+        const avatarUrl = new URL(avatars.getInitials(user.name));
 
         const newUser = await saveUserToDB({
             accountId: newAccount.$id,
@@ -20,64 +21,86 @@ export async function createUserAccount(user: INewUser) {
             email: newAccount.email,
             username: user.username,
             imageUrl: avatarUrl,
-        })
+        });
 
-        return  newUser;
+  
+        return newUser;
     } 
-    catch (err) {
-        console.log(err);
-        return err;
+    catch (error) {
+        if (error instanceof Error) {
+            console.error('Error fetching account:', error.message, error);
+        } else {
+            console.error('Error fetching account:', error);
+        }
     }
-}
+    
+  }
 
-export async function saveUserToDB(user: {
+  export async function saveUserToDB(user: {
     accountId: string;
     email: string;
     name: string;
-    imageUrl: string;
-    username? : string;
-}) {
+    imageUrl: URL;
+    username?: string;
+  }) {
     try {
-        const newUser = await databases.createDocument(
-            appwriteConfig.databaseId,
-            appwriteConfig.userCollectionId,
-            ID.unique(),
-            user,
-        )
-        return newUser;
+      const newUser = await databases.createDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.userCollectionId,
+        ID.unique(),
+        user
+      );
+  
+      return newUser;
+    } 
+    catch (error) {
+        if (error instanceof Error) {
+            console.error('Error fetching account:', error.message, error);
+        } else {
+            console.error('Error fetching account:', error);
+        }
     }
-    catch (err) {
-        console.log(err);
-    }
-
-}
+  }
 
 export async function signInAccount(user: {email: string; password: string;}) {
     try{
         const session = await account.createEmailPasswordSession(user.email, user.password)
-        return session;   
+        console.log('Session created:', session);
+        return session;  
+        
     }
     catch(err){
         console.log(err)
     }
 }
 
+export async function getAccount() {
+    try {
+      const currentAccount = await account.get();
+  
+      return currentAccount;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
 export async function getCurrentUser() {
     try {
-        const currentAccount = await account.get();
-
-        if(!currentAccount) throw Error;
-
-        const currentUser = await databases.listDocuments(
-            appwriteConfig.databaseId,
-            appwriteConfig.userCollectionId,
-            [Query.equal('accountId', currentAccount.$id)]
-        )
-        if(!currentUser) throw Error;
-
-        return currentUser.documents[0];
+      const currentAccount = await getAccount();
+  
+      if (!currentAccount) throw Error;
+  
+      const currentUser = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.userCollectionId,
+        [Query.equal("accountId", currentAccount.$id)]
+      );
+  
+      if (!currentUser) throw Error;
+  
+      return currentUser.documents[0];
+    } catch (error) {
+      console.log(error);
+      return null;
     }
-    catch(err) {
-        console.log(err);
-    }
-}
+  }

@@ -1,6 +1,5 @@
 import { getCurrentUser } from '@/lib/appwrite/api';
 import { IUser } from '@/types';
-import { UserSquare2Icon } from 'lucide-react';
 import {createContext, useContext, useEffect, useState} from 'react'
 import { useNavigate } from 'react-router-dom';
 
@@ -12,7 +11,6 @@ export const INITIAL_USER = {
     imageUrl: '',
     bio: '',
 };
-
 const INITIAL_STATE = {
     user: INITIAL_USER,
     isLoading: false,
@@ -21,6 +19,15 @@ const INITIAL_STATE = {
     setIsAuthenticated: () => {},
     checkAuthUser: async () => false as boolean,
 }
+
+type IContextType = {
+    user: IUser;
+    isLoading: boolean;
+    setUser: React.Dispatch<React.SetStateAction<IUser>>;
+    isAuthenticated: boolean;
+    setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
+    checkAuthUser: () => Promise<boolean>;
+  };
 
 const AuthContext = createContext<IContextType>(INITIAL_STATE);
 
@@ -58,7 +65,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     useEffect(() => {
-        if( localStorage.getItem('cookieFallback') === '[]' ||
+        if( localStorage.getItem('cookieFallback') === '[]'  ||
             localStorage.getItem('cookieFallback') === null
         )   navigate('/sign-in')
 
