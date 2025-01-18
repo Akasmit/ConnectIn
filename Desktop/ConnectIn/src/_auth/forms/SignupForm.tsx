@@ -73,7 +73,7 @@ const SignupForm = () => {
         <div className="sm:w-420 flex-center flex-col">
             <img src="public/assets/images/logo1.svg" alt="logo" />
 
-            <h2 className="h3-bold md:h2-bold pt-5 sm:pt-12"></h2>
+            <h2 className="h3-bold md:h2-bold pt-5 sm:pt-12">Create a new account</h2>
             <p className="text-light-3 small-medium md:base-regular mt-2 ">To use ConnectIn, please enter you details</p>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5 w-full mt-4">
               <FormField
